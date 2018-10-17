@@ -6,15 +6,56 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
 
+using System.Collections.Generic;
+
 namespace Microsoft.Bot.Sample.LuisBot
 {
     // For more information about this template visit http://aka.ms/azurebots-csharp-luis
     [Serializable]
     public class BasicLuisDialog : LuisDialog<object>
     {
+        // Store notes in a dictionary that uses the title as a key
+        private readonly Dictionary<string, Note> noteByTitle = new Dictionary<string, Note>();
+
+        [Serializable]
+        public sealed class Note : IEquatable<Note>
+        {
+
+            public string Title { get; set; }
+            public string Text { get; set; }
+
+            public override string ToString()
+            {
+                return $"[{this.Title} : {this.Text}]";
+            }
+
+            public bool Equals(Note other)
+            {
+                return other != null
+                    && this.Text == other.Text
+                    && this.Title == other.Title;
+            }
+
+            public override bool Equals(object other)
+            {
+                return Equals(other as Note);
+            }
+
+            public override int GetHashCode()
+            {
+                return this.Title.GetHashCode();
+            }
+        }
+
+        // CONSTANTS        
+        // Name of note title entity
+        public const string Entity_Note_Title = "Note.Title";
+        // Default note title
+        public const string DefaultNoteTitle = "default";
+
         public BasicLuisDialog() : base(new LuisService(new LuisModelAttribute(
-            ConfigurationManager.AppSettings["LuisAppId"],
-            ConfigurationManager.AppSettings["LuisAPIKey"],
+            ConfigurationManager.AppSettings["LuisAppId"], 
+            ConfigurationManager.AppSettings["LuisAPIKey"], 
             domain: ConfigurationManager.AppSettings["LuisAPIHostName"])))
         {
         }
@@ -44,7 +85,14 @@ namespace Microsoft.Bot.Sample.LuisBot
         //{
         //    await this.ShowLuisResult(context, result);
         //}
-        //inicio
+
+
+        private async Task ShowLuisResult(IDialogContext context, LuisResult result) 
+        {
+            await context.PostAsync($"You have reached {result.Intents[0].Intent}. You said: {result.Query}");
+            context.Wait(MessageReceived);
+        }
+        //hhhh
         private Note noteToCreate;
         private string currentTitle;
         [LuisIntent("Note.Create")]
@@ -103,9 +151,8 @@ namespace Microsoft.Bot.Sample.LuisBot
 
             context.Wait(MessageReceived);
         }
-        //fin
 
-        //2do inicio
+        //2do
         [LuisIntent("Note.ReadAloud")]
         public async Task NoteReadAloudIntent(IDialogContext context, LuisResult result)
         {
@@ -153,8 +200,8 @@ namespace Microsoft.Bot.Sample.LuisBot
 
             return this.noteByTitle.TryGetValue(titleToFind, out note); // TryGetValue returns false if no match is found.
         }
-        //fin
-        //3ro inicio
+
+        //3ro
         [LuisIntent("Note.Delete")]
         public async Task NoteDeleteIntent(IDialogContext context, LuisResult result)
         {
@@ -189,49 +236,7 @@ namespace Microsoft.Bot.Sample.LuisBot
 
             context.Wait(MessageReceived);
         }
-        //fin
-        private async Task ShowLuisResult(IDialogContext context, LuisResult result)
-        {
-            await context.PostAsync($"You have reached {result.Intents[0].Intent}. You said: {result.Query}");
-            context.Wait(MessageReceived);
-        }
     }
 
-    // Store notes in a dictionary that uses the title as a key
-    private readonly Dictionary<string, Note> noteByTitle = new Dictionary<string, Note>();
 
-    [Serializable]
-    public sealed class Note : IEquatable<Note>
-    {
-
-        public string Title { get; set; }
-        public string Text { get; set; }
-
-        public override string ToString()
-        {
-            return $"[{this.Title} : {this.Text}]";
-        }
-
-        public bool Equals(Note other)
-        {
-            return other != null
-                && this.Text == other.Text
-                && this.Title == other.Title;
-        }
-
-        public override bool Equals(object other)
-        {
-            return Equals(other as Note);
-        }
-
-        public override int GetHashCode()
-        {
-            return this.Title.GetHashCode();
-        }
-    }
-
-    // CONSTANTS        
-    // Name of note title entity
-    public const string Entity_Note_Title = "Note.Title";
-    // Default note title
 }
