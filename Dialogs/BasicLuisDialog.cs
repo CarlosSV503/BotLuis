@@ -66,25 +66,26 @@ namespace Microsoft.Bot.Sample.LuisBot
             await this.ShowLuisResult(context, result);
         }
 
-        // Go to https://luis.ai and create a new intent, then train/publish your luis app.
+        //Go to https://luis.ai and create a new intent, then train/publish your luis app.
         // Finally replace "Greeting" with the name of your newly created intent in the following handler
-        //[LuisIntent("Greeting")]
-        //public async Task GreetingIntent(IDialogContext context, LuisResult result)
-        //{
-        //    await this.ShowLuisResult(context, result);
-        //}
 
-        //[LuisIntent("Cancel")]
-        //public async Task CancelIntent(IDialogContext context, LuisResult result)
-        //{
-        //    await this.ShowLuisResult(context, result);
-        //}
+        [LuisIntent("Greeting")]
+        public async Task GreetingIntent(IDialogContext context, LuisResult result)
+        {
+            await this.ShowLuisResult(context, result);
+        }
 
-        //[LuisIntent("Help")]
-        //public async Task HelpIntent(IDialogContext context, LuisResult result)
-        //{
-        //    await this.ShowLuisResult(context, result);
-        //}
+        [LuisIntent("Cancel")]
+        public async Task CancelIntent(IDialogContext context, LuisResult result)
+        {
+            await this.ShowLuisResult(context, result);
+        }
+
+        [LuisIntent("Help")]
+        public async Task HelpIntent(IDialogContext context, LuisResult result)
+        {
+            await this.ShowLuisResult(context, result);
+        }
 
 
         private async Task ShowLuisResult(IDialogContext context, LuisResult result) 
